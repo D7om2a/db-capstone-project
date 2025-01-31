@@ -1,0 +1,110 @@
+-- -----------------------------------------------------
+-- Table `LittleLemonDB`.`Customers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`Customers` (
+  `customerID` INT NOT NULL AUTO_INCREMENT,
+  `customerName` VARCHAR(60) NOT NULL,
+  `contactNumber` VARCHAR(15) NULL,
+  `customerEmail` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`customerID`),
+  UNIQUE INDEX `customerEmail_UNIQUE` (`customerEmail` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `LittleLemonDB`.`Bookings`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`Bookings` (
+  `bookingID` INT NOT NULL AUTO_INCREMENT,
+  `bookingDate` DATETIME NULL,
+  `tableNumber` INT NOT NULL,
+  `fk_CustomerID` INT NOT NULL,
+  PRIMARY KEY (`bookingID`),
+  INDEX `fk_customerID_idx` (`fk_CustomerID` ASC) VISIBLE,
+  CONSTRAINT `fk_customerID`
+    FOREIGN KEY (`fk_CustomerID`)
+    REFERENCES `LittleLemonDB`.`Customers` (`customerID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `LittleLemonDB`.`Orders`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`Orders` (
+  `orderID` INT NOT NULL AUTO_INCREMENT,
+  `orderDate` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `totalCost` DECIMAL(10,2) NULL,
+  `fk_bookingID` INT NOT NULL,
+  PRIMARY KEY (`orderID`),
+  INDEX `fk_bookingID_idx` (`fk_bookingID` ASC) VISIBLE,
+  CONSTRAINT `fk_bookingID`
+    FOREIGN KEY (`fk_bookingID`)
+    REFERENCES `LittleLemonDB`.`Bookings` (`bookingID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `LittleLemonDB`.`OrderStatus`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`OrderStatus` (
+  `orderStatusID` INT NOT NULL AUTO_INCREMENT,
+  `fk_orderID` INT NOT NULL,
+  `orderStatus` ENUM('Pending', 'Delivered', 'Cancelled') NOT NULL,
+  `orderStatusDate` DATETIME NOT NULL,
+  PRIMARY KEY (`orderStatusID`),
+  INDEX `fk_orderID_idx` (`fk_orderID` ASC) VISIBLE,
+  CONSTRAINT `fk_orderID`
+    FOREIGN KEY (`fk_orderID`)
+    REFERENCES `LittleLemonDB`.`Orders` (`orderID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `LittleLemonDB`.`Menu`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`Menu` (
+  `menuID` INT NOT NULL AUTO_INCREMENT,
+  `itemName` VARCHAR(50) NOT NULL,
+  `itemType` ENUM('Cuisine', 'Starter', 'Course', 'Drink', 'Dessert') NOT NULL,
+  `itemPrice` DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (`menuID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `LittleLemonDB`.`MenuOrderDetail`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`MenuOrderDetail` (
+  `fk_orderID` INT NOT NULL,
+  `fk_menuID` INT NOT NULL,
+  `quantity` INT NULL,
+  INDEX `fk_orderID_idx` (`fk_orderID` ASC) VISIBLE,
+  INDEX `fk_menuID_idx` (`fk_menuID` ASC) VISIBLE,
+  CONSTRAINT `fk_orderID`
+    FOREIGN KEY (`fk_orderID`)
+    REFERENCES `LittleLemonDB`.`Orders` (`orderID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_menuID`
+    FOREIGN KEY (`fk_menuID`)
+    REFERENCES `LittleLemonDB`.`Menu` (`menuID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `LittleLemonDB`.`Staff`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`Staff` (
+  `staffID` INT NOT NULL AUTO_INCREMENT,
+  `staffName` VARCHAR(100) NOT NULL,
+  `staffRole` VARCHAR(100) NULL,
+  `salary` DECIMAL(10) NULL,
+  PRIMARY KEY (`staffID`))
